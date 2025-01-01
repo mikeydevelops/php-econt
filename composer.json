@@ -1,0 +1,24 @@
+{
+    "name": "mikeydevelops/php-econt",
+    "version": "0.0.1",
+    "description": "PHP integration for Econt Express API.",
+    "keywords": ["econt", "api", "eecont", "sdk"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mihail Ivanov",
+            "email": "mikeydevelops@gmail.com",
+            "homepage": "https://mikeydevs.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "MikeyDevelops\\Econt\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {}
+}
