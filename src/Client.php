@@ -53,7 +53,11 @@ class Client
      *
      * @var array<string,class-string>
      */
-    public static $availableResources = [];
+    public static $availableResources = [
+        'nomenclatures' => \MikeyDevelops\Econt\Resources\Nomenclatures::class,
+        'locations' => \MikeyDevelops\Econt\Resources\Nomenclatures::class,
+        'addresses' => \MikeyDevelops\Econt\Resources\Addresses::class,
+    ];
 
     /**
      * The already spawned resources.
