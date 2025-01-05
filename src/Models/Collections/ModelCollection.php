@@ -63,7 +63,13 @@ class ModelCollection implements ArrayAccess, Countable, JsonSerializable, Itera
     {
         $this->models = $models;
 
-        $this->modelType = $modelType ?? $models ? get_class(reset($models)) : null;
+        if (is_null($modelType) && count($models)) {
+            $item = reset($models);
+
+            $modelType = is_object($item) ? get_class($item) : null;
+        }
+
+        $this->modelType = $modelType ?? null;
     }
 
     /**
