@@ -2,14 +2,15 @@
 
 namespace  MikeyDevelops\Econt\Enums;
 
-use MikeyDevelops\Econt\Exceptions\EnumException;
+use JsonSerializable;
 use ReflectionClass;
+use MikeyDevelops\Econt\Exceptions\EnumException;
 
 /**
  * @property-read  string  $name  The name of the enum case.
  * @property-read  string|integer  $value  The value of the enum case.
  */
-abstract class Enum
+abstract class Enum implements JsonSerializable
 {
     /**
      * The name of the value current value of the enum, the constant name.
@@ -151,5 +152,33 @@ abstract class Enum
     public static function __callStatic($name, $arguments)
     {
         return static::instance($name);
+    }
+
+    /**
+     * Convert the enum to string.
+     *
+     * @return string
+     */
+    public function toString(): string
+    {
+        return (string) $this->value;
+    }
+
+    /**
+     * PHP magic to convert the enum to string.
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->toString();
+    }
+
+    /**
+     * Convert the enum to json value.
+     */
+    public function jsonSerialize(): string
+    {
+        return $this->toString();
     }
 }
