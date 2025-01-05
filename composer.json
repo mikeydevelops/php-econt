@@ -12,13 +12,26 @@
             "homepage": "https://mikeydevs.com"
         }
     ],
+    "support": {
+        "issues": "https://github.com/mikeydevelops/php-econt/issues",
+        "source": "https://github.com/mikeydevelops/php-econt",
+        "email": "mike@mikeydevs.com",
+        "docs": "https://mikeydevs.com/projects/php-econt"
+    },
     "autoload": {
         "psr-4": {
             "MikeyDevelops\\Econt\\": "src/"
         }
     },
+    "config": {
+        "optimize-autoloader": true
+    },
     "require": {
         "php": ">=7.4"
     },
-    "require-dev": {}
+    "require-dev": {
+        "symfony/var-dumper": "^7.2",
+        "phpunit/phpunit": "^11.5",
+        "psy/psysh": "^0.12.7"
+    }
 }

@@ -1,0 +1,14 @@
+#!/usr/bin/env php
+<?php
+
+use Psy\Configuration;
+use Psy\VersionUpdater\Checker;
+
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+require_once __DIR__ . '/Shell.php';
+
+$config = new Configuration();
+$config->setVerbosity(Configuration::VERBOSITY_VERBOSE);
+$config->setUpdateCheck(Checker::NEVER);
+
+exit((new \MikeyDevelops\Econt\Shell($config))->run());
