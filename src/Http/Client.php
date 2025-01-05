@@ -3,8 +3,9 @@
 namespace MikeyDevelops\Econt\Http;
 
 use MikeyDevelops\Econt\Exceptions\HttpException;
+use MikeyDevelops\Econt\Interfaces\HttpClient;
 
-abstract class Client implements Client
+abstract class Client implements HttpClient
 {
     /**
      * The user agent to use for requests.
@@ -59,21 +60,33 @@ abstract class Client implements Client
      * @param  string  $uri
      * @param  array  $data
      * @param  array  $headers
-     * @return array{string,string,string[],string}
+     * @return \MikeyDevelops\Econt\Http\Request
      */
-    protected function prepare(string $method, string $uri, array $data = [], array $headers = []): array
+    protected function prepare(string $method, string $uri, array $data = [], array $headers = []): Request
     {
-        $method = $this->prepareMethod($method);
-
-        $url = $this->url($uri, $data['query'] ?? []);
-
         list($type, $body) = $this->prepareBody($data);
 
-        $headers = $this->prepareHeaders($headers, $body ? [
+        $merge = array_merge($body ? [
             'Content-Type' => $type,
-        ] : []);
+        ] : [], $data['headers'] ?? []);
 
-        return [$method, $url, $headers, $body];
+        $headers = $this->prepareHeaders($headers, $merge);
+
+        $request = new Request(
+            $this->prepareMethod($method),
+            $this->url($uri, $data['query'] ?? []),
+            $body,
+            $headers
+        );
+
+        $data['uri'] = $uri;
+        $data['baseUrl'] = $this->baseUrl;
+
+        unset($data['json'], $data['form'], $data['body'], $data['headers']);
+
+        $request->setOptions($data);
+
+        return $request;
     }
 
     /**
@@ -196,9 +209,7 @@ abstract class Client implements Client
             $headers['User-Agent'] = $this->getUserAgent();
         }
 
-        return array_map(function ($value, $key) {
-            return "$key: $value";
-        }, $headers, array_keys($headers));
+        return $headers;
     }
 
     /**
@@ -231,12 +242,25 @@ abstract class Client implements Client
      */
     protected function makeUserAgent(): string
     {
+        $parts = [];
+
         $pluginName = $this->composer('name');
+        $pluginName = substr($pluginName, strpos($pluginName, '/') + 1);
         $pluginVersion = $this->composer('version');
+
+        $parts[] = "$pluginName/$pluginVersion";
+
+        $source = $this->composer('support.source');
+
+        if (isset($source)) {
+            $parts[] = "(+$source)";
+        }
 
         $phpVersion = phpversion();
 
-        return "$pluginName/$pluginVersion PHP/$phpVersion";
+        $parts[] = "PHP/$phpVersion";
+
+        return implode(' ', $parts);
     }
 
     /**

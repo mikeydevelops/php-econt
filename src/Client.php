@@ -7,6 +7,7 @@ use MikeyDevelops\Econt\Exceptions\EcontException;
 use MikeyDevelops\Econt\Exceptions\EcontHttpException;
 use MikeyDevelops\Econt\Exceptions\RequestFailedException;
 use MikeyDevelops\Econt\Http\CurlClient;
+use MikeyDevelops\Econt\Http\Response;
 use MikeyDevelops\Econt\Resources\Resource;
 
 /**
@@ -15,6 +16,7 @@ use MikeyDevelops\Econt\Resources\Resource;
  * @property-read  \MikeyDevelops\Econt\Resources\Labels  $labels  The labels service.
  * @property-read  \MikeyDevelops\Econt\Resources\Nomenclatures  $nomenclatures  The nomenclatures service.
  * @property-read  \MikeyDevelops\Econt\Resources\Nomenclatures  $locations  The locations service. Aliased from Nomenclatures.
+ * @property-read  \MikeyDevelops\Econt\Resources\Addresses  $addresses  The addresses service.
  */
 class Client
 {
@@ -83,9 +85,9 @@ class Client
      * @param  string  $method
      * @param  string  $uri
      * @param  array  $data
-     * @return array
+     * @return \MikeyDevelops\Econt\Http\Response
      */
-    public function request(string $method, string $uri, array $data = []): array
+    public function request(string $method, string $uri, array $data = []): Response
     {
         if (in_array(strtolower($method), ['GET', 'HEAD'])) {
             $data = [ 'query' => $data, ];
@@ -104,13 +106,13 @@ class Client
             throw EcontHttpException::fromHttpClient($ex);
         }
 
-        return $response->json() ?? $response->content();
+        return $response;
     }
 
     /**
      * Check to see if specified resource is valid.
      *
-     * @param  string $ resource
+     * @param  string  $resource
      * @return boolean
      */
     public function isValidResource(string $resource)

@@ -19,7 +19,7 @@ class CurlClient extends Client
 
         $curlVersion = curl_version()['version'];
 
-        array_splice($parts, 1, 0, "(curl $curlVersion)");
+        array_splice($parts, 2, 0, "curl/$curlVersion");
 
         return implode(' ', $parts);
     }
@@ -35,33 +35,43 @@ class CurlClient extends Client
      */
     public function request(string $method, string $uri, array $data = [], array $headers = []): Response
     {
-        list($method, $url, $headers, $body) = $this->prepare($method, $uri, $data, $headers);
+        $request = $this->prepare($method, $uri, $data, $headers);
 
-        $request = curl_init();
+        $curl = curl_init();
 
-        curl_setopt_array($request, [
-            CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_URL => $url,
+        $headers = array_map(
+            function ($key, $value) {
+                return "$key: $value";
+            },
+            array_keys($request->headers()),
+            $request->headers()
+        );
+
+        curl_setopt_array($curl, [
+            CURLOPT_CUSTOMREQUEST => $request->method(),
+            CURLOPT_URL => $request->url(),
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_HEADER => true,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => $data['verify_ssl'] ?? true,
+            CURLOPT_SSL_VERIFYPEER => $request->option('verify_ssl', true),
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_MAXREDIRS => 10,
         ]);
 
         if (! in_array($method, ['GET', 'HEAD'])) {
-            curl_setopt($request, CURLOPT_POSTFIELDS, $body);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $request->body());
         }
 
-        $body = curl_exec($request);
-        $info = curl_getinfo($request);
+        $body = curl_exec($curl);
+        $info = curl_getinfo($curl);
 
-        curl_close($request);
+        curl_close($curl);
 
         $headers = preg_split('/\r?\n/', substr($body, 0, $hs = $info['header_size']));
 
         $response = new Response(substr($body, $hs), $info['http_code'], $headers);
+
+        $response->setRequest($request->setResponse($response));
 
         // TODO: analyze response, throw exceptions on response errors 400 - 500.
 

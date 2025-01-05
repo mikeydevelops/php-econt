@@ -49,6 +49,13 @@ class Response
     protected $data = null;
 
     /**
+     * The related request.
+     *
+     * @var \MikeyDevelops\Econt\Http\Request|null
+     */
+    protected ?Request $request = null;
+
+    /**
      * Create new Response object.
      *
      * @param  mixed  $content
@@ -131,6 +138,29 @@ class Response
         }
 
         return substr($value, 0, $semi);
+    }
+
+    /**
+     * Get the related request instance.
+     *
+     * @return \MikeyDevelops\Econt\Http\Request
+     */
+    public function request(): ?Request
+    {
+        return $this->request;
+    }
+
+    /**
+     * Set the related request.
+     *
+     * @param  \MikeyDevelops\Econt\Http\Request  $request
+     * @return static
+     */
+    public function setRequest(Request $request): self
+    {
+        $this->request = $request;
+
+        return $this;
     }
 
     /**
