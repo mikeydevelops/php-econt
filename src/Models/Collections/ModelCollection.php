@@ -116,10 +116,10 @@ class ModelCollection implements ArrayAccess, Countable, JsonSerializable, Itera
      */
     public static function fromResponse(Response $response, string $modelType, ?string $key = null): self
     {
-        $models = $response->json();
+        $models = $response->json() ?? [];
 
         if (! is_null($key)) {
-            $models = $models[$key];
+            $models = $models[$key] ?? [];
         }
 
         $collection = (new static($models, $modelType))
