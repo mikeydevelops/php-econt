@@ -5,6 +5,7 @@ namespace MikeyDevelops\Econt\Models;
 use ArrayAccess;
 use JsonSerializable;
 use MikeyDevelops\Econt\Exceptions\EcontException;
+use MikeyDevelops\Econt\Exceptions\EcontHttpException;
 use MikeyDevelops\Econt\Interfaces\NeedsEcont;
 use MikeyDevelops\Econt\Models\Collections\ModelCollection;
 use MikeyDevelops\Econt\Resources\Resource;
@@ -184,6 +185,20 @@ class Model implements ArrayAccess, JsonSerializable, NeedsEcont
             return $value;
         }
 
+        return $this->casted[$attribute] = $this->cast($type, $value, $attribute);
+    }
+
+    /**
+     * Cast given value to given type.
+     *
+     * @param  string  $type  The type of the cast.
+     * @param  mixed  $value  The value to be casted.
+     * @param  string|null  $attribute  [optional]  The name of the attribute that is being casted.
+     * @return mixed
+     * @throws \MikeyDevelops\Econt\Exceptions\EcontException
+     */
+    protected function cast(string $type, $value, ?string $attribute = null): mixed
+    {
         if (class_exists($type)) {
             return $this->newInstance($value, $type);
         }
@@ -208,6 +223,18 @@ class Model implements ArrayAccess, JsonSerializable, NeedsEcont
                 break;
             case 'array':
                 $value = is_null($value) ? [] : (array) $value;
+                $subtype = $params[0] ?? null;
+
+                if (! is_null($subtype)) {
+                    if (count($params) > 1) {
+                        $subtype .= ':' . implode(',', array_slice($params, 1));
+                    }
+
+                    $value = array_map(function ($v, $k) use ($subtype) {
+                        return $this->cast($subtype, $v, $k);
+                    }, $value, array_keys($value));
+                }
+
                 break;
             case 'collection':
                 $colType = ModelCollection::class;
@@ -219,11 +246,21 @@ class Model implements ArrayAccess, JsonSerializable, NeedsEcont
 
                 $value = new $colType($value ?? [], $modelType);
                 break;
+            case 'enum':
+                if (! isset($params[0])) {
+                    throw new EcontHttpException(sprintf(
+                        "Tried to cast attribute %s::%s to enum, but no enum type was provided. Please cast to enum:CustomEnum::class.",
+                        static::class,
+                        $attribute,
+                    ));
+                }
+
+                $enum = $params[0];
+                $value = $enum::from($value);
+                break;
             default:
                 throw new EcontException(sprintf("Invalid cast type [$type] for model [%s].", static::class));
         }
-
-        $this->casted[$attribute] = $value;
 
         return $value;
     }
