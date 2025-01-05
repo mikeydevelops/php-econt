@@ -17,6 +17,7 @@ use MikeyDevelops\Econt\Resources\Resource;
  * @property-read  \MikeyDevelops\Econt\Resources\Nomenclatures  $nomenclatures  The nomenclatures service.
  * @property-read  \MikeyDevelops\Econt\Resources\Nomenclatures  $locations  The locations service. Aliased from Nomenclatures.
  * @property-read  \MikeyDevelops\Econt\Resources\Addresses  $addresses  The addresses service.
+ * @property-read  \MikeyDevelops\Econt\Resources\ThreeWay  $threeWay  The three way logistics service.
  */
 class Client
 {
@@ -58,6 +59,7 @@ class Client
         'nomenclatures' => \MikeyDevelops\Econt\Resources\Nomenclatures::class,
         'locations' => \MikeyDevelops\Econt\Resources\Nomenclatures::class,
         'addresses' => \MikeyDevelops\Econt\Resources\Addresses::class,
+        'threeWay' => \MikeyDevelops\Econt\Resources\ThreeWay::class,
     ];
 
     /**
