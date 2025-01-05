@@ -3,6 +3,7 @@
 namespace MikeyDevelops\Econt\Resources;
 
 use MikeyDevelops\Econt\Client;
+use MikeyDevelops\Econt\Http\Response;
 use MikeyDevelops\Econt\Interfaces\NeedsEcont;
 use MikeyDevelops\Econt\Models\Collections\ModelCollection;
 use MikeyDevelops\Econt\Models\Model;
@@ -42,10 +43,10 @@ class Resource implements NeedsEcont
      *
      * @param  string  $method  The name of the method.
      * @param  array  $params  The parameters.
-     * @return array|null
+     * @return \MikeyDevelops\Econt\Http\Response
      * @throws \MikeyDevelops\Econt\EcontException
      */
-    public function call(string $method, array $params = []): ?array
+    public function call(string $method, array $params = []): Response
     {
         return $this->request('POST', "$this->baseUri.$method", $params, false);
     }
@@ -57,9 +58,9 @@ class Resource implements NeedsEcont
      * @param  mixed  $uri
      * @param  array  $data
      * @param  boolean  $prependBaseUri
-     * @return \MikeyDevelops\Econt\Models\Model|null
+     * @return \MikeyDevelops\Econt\Http\Response
      */
-    public function request(string $method, string $uri, array $data = [], bool $prependBaseUri = true)
+    public function request(string $method, string $uri, array $data = [], bool $prependBaseUri = true): Response
     {
         if ($prependBaseUri && substr($uri, 0, 1) != '/') {
             $uri = rtrim($this->baseUri, '/') . '/' . $uri;
@@ -112,6 +113,21 @@ class Resource implements NeedsEcont
         }
 
         return $collection;
+    }
+
+    /**
+     * Get a generic Model Collection from response.
+     *
+     * @param  \MikeyDevelops\Econt\Http\Response  $response  The response.
+     * @param  class-string  $modelType  The type of the model in the request data.
+     * @param  string|null  $key  [optional] Key to access the array of models in the response data.
+     * @return \MikeyDevelops\Econt\Models\Collections\ModelCollection
+     * @throws \MikeyDevelops\Econt\Exceptions\EcontException
+     * @see MikeyDevelops\Econt\Models\Collections\ModelCollection::fromResponse()
+     */
+    public function collectionFromResponse(Response $response, string $modelType, ?string $key = null): ModelCollection
+    {
+        return ModelCollection::fromResponse($response, $modelType, $key)->setResource($this);
     }
 
     /**

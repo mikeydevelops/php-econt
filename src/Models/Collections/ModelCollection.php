@@ -8,6 +8,7 @@ use Countable;
 use Iterator;
 use JsonSerializable;
 use MikeyDevelops\Econt\Exceptions\EcontException;
+use MikeyDevelops\Econt\Http\Response;
 use MikeyDevelops\Econt\Interfaces\NeedsEcont;
 use MikeyDevelops\Econt\Resources\Resource;
 use MikeyDevelops\Econt\Traits\InteractsWithEcontClient;
@@ -15,6 +16,13 @@ use MikeyDevelops\Econt\Traits\InteractsWithEcontClient;
 class ModelCollection implements ArrayAccess, Countable, JsonSerializable, Iterator, NeedsEcont
 {
     use InteractsWithEcontClient;
+
+    /**
+     * The model type in this collection.
+     *
+     * @var string|null
+     */
+    protected ?string $modelType = null;
 
     /**
      * The models for the collection.
@@ -28,7 +36,14 @@ class ModelCollection implements ArrayAccess, Countable, JsonSerializable, Itera
      *
      * @var \MikeyDevelops\Econt\Resources\Resource|null
      */
-    protected Resource $resource;
+    protected ?Resource $resource = null;
+
+    /**
+     * The related response.
+     *
+     * @var \MikeyDevelops\Econt\Http\Response|null
+     */
+    protected ?Response $response = null;
 
     /**
      * The current index of the iterator.
@@ -40,12 +55,15 @@ class ModelCollection implements ArrayAccess, Countable, JsonSerializable, Itera
     /**
      * Create a new Model collection instance.
      *
-     * @param  \MikeyDevelops\Econt\Models\Model[]  $models
+     * @param  \MikeyDevelops\Econt\Models\Model[]|array[]  $models
+     * @param  class-string  $modelType  Optional the type of the model.
      * @return void
      */
-    public function __construct(array $models)
+    public function __construct(array $models, ?string $modelType = null)
     {
         $this->models = $models;
+
+        $this->modelType = $modelType ?? $models ? get_class(reset($models)) : null;
     }
 
     /**
@@ -53,22 +71,9 @@ class ModelCollection implements ArrayAccess, Countable, JsonSerializable, Itera
      *
      * @return array
      */
-    public function all()
+    public function all(): array
     {
         return $this->models;
-    }
-
-    /**
-     * Set the resource for the model.
-     *
-     * @param  \MikeyDevelops\Econt\Resources\Resource  $resource
-     * @return static
-     */
-    public function setResource(Resource $resource)
-    {
-        $this->resource = $resource;
-
-        return $this;
     }
 
     /**
@@ -76,25 +81,68 @@ class ModelCollection implements ArrayAccess, Countable, JsonSerializable, Itera
      *
      * @return \MikeyDevelops\Econt\Resources\Resource|null
      */
-    public function getResource()
+    public function resource(): ?Resource
     {
         return $this->resource;
     }
 
     /**
+     * Set the resource for the collection.
+     *
+     * @param  \MikeyDevelops\Econt\Resources\Resource  $resource
+     * @return static
+     */
+    public function setResource(Resource $resource): self
+    {
+        $this->resource = $resource;
+
+        return $this;
+    }
+
+    /**
      * Create new instance of Model Collection from response from API.
      *
-     * @param  array  $response
-     * @return \MikeyDevelops\Econt\Models\Collections\ModelCollection
+     * @param  \MikeyDevelops\Econt\Http\Response  $response  The response.
+     * @param  class-string  $modelType  The type of the model in the request data.
+     * @param  string|null  $key  [optional] Key to access the array of models in the response data.
+     * @return static
      * @throws \MikeyDevelops\Econt\Exceptions\EcontException
      */
-    public function fromResponse(array $response): self
+    public static function fromResponse(Response $response, string $modelType, ?string $key = null): self
     {
-        throw new EcontException(sprintf(
-            "%s::fromResponse is not implemented. It is intended to be implemented by children of %s.",
-            static::class,
-            ModelCollection::class,
-        ));
+        $models = $response->json();
+
+        if (! is_null($key)) {
+            $models = $models[$key];
+        }
+
+        $collection = (new static($models, $modelType))
+            ->setResponse($response);
+
+        return $collection;
+    }
+
+    /**
+     * Get the related request.
+     *
+     * @return \MikeyDevelops\Econt\Http\Response|null
+     */
+    public function response(): ?Response
+    {
+        return $this->response;
+    }
+
+    /**
+     * Set the related response.
+     *
+     * @param  \MikeyDevelops\Econt\Http\Response  $response
+     * @return static
+     */
+    public function setResponse(Response $response): self
+    {
+        $this->response = $response;
+
+        return $this;
     }
 
     /**
