@@ -54,6 +54,7 @@ class Client
      * @var array<string,class-string>
      */
     public static $availableResources = [
+        'profiles' => \MikeyDevelops\Econt\Resources\Profiles::class,
         'nomenclatures' => \MikeyDevelops\Econt\Resources\Nomenclatures::class,
         'locations' => \MikeyDevelops\Econt\Resources\Nomenclatures::class,
         'addresses' => \MikeyDevelops\Econt\Resources\Addresses::class,
