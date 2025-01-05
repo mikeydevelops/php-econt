@@ -31,15 +31,4 @@ class Profile extends Model
         'cdPayOptions' => 'collection:'.CDPayOptions::class,
         'instructionTemplates' => 'collection:'.Instruction::class,
     ];
-
-    /**
-     * Get a new collection instance for the model.
-     *
-     * @param  array  $models
-     * @return \MikeyDevs\Econt\Models\Collections\ProfileCollection<static>
-     */
-    public function newCollection(array $models = [])
-    {
-        return new Collections\ProfileCollection($models);
-    }
 }

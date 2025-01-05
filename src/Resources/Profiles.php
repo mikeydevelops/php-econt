@@ -4,7 +4,6 @@ namespace MikeyDevelops\Econt\Resources;
 
 use MikeyDevelops\Econt\Models\CDPayOptions;
 use MikeyDevelops\Econt\Models\Collections\ModelCollection;
-use MikeyDevelops\Econt\Models\Collections\ProfileCollection;
 use MikeyDevelops\Econt\Models\Profile;
 use MikeyDevelops\Econt\Resources\Resource;
 
