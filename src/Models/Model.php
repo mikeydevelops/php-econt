@@ -6,6 +6,7 @@ use ArrayAccess;
 use JsonSerializable;
 use MikeyDevelops\Econt\Exceptions\EcontException;
 use MikeyDevelops\Econt\Interfaces\NeedsEcont;
+use MikeyDevelops\Econt\Models\Collections\ModelCollection;
 use MikeyDevelops\Econt\Resources\Resource;
 use MikeyDevelops\Econt\Traits\InteractsWithEcontClient;
 
@@ -43,6 +44,7 @@ class Model implements ArrayAccess, JsonSerializable, NeedsEcont
 
     /**
      * Alias for properties.
+     * Keys of the array are the alias and the values are the name of the property that is aliased.
      *
      * @var array
      */
@@ -56,9 +58,22 @@ class Model implements ArrayAccess, JsonSerializable, NeedsEcont
      */
     public function __construct(array $attributes = [])
     {
+        $this->fill($attributes);
+    }
+
+    /**
+     * Set attributes in the model.
+     *
+     * @param  array  $attributes
+     * @return static
+     */
+    public function fill(array $attributes): self
+    {
         foreach ($attributes as $name => $value) {
             $this->setAttribute($name, $value);
         }
+
+        return $this;
     }
 
     /**
@@ -87,7 +102,7 @@ class Model implements ArrayAccess, JsonSerializable, NeedsEcont
      */
     public function newCollection(array $models = [])
     {
-        return new Collections\ModelCollection($models);
+        return new Collections\ModelCollection($models, static::class);
     }
 
     /**
@@ -97,13 +112,13 @@ class Model implements ArrayAccess, JsonSerializable, NeedsEcont
      * @param  class-string|null  $model Optional to overwrite current model type.
      * @return \MikeyDevelops\Econt\Models\Model
      */
-    public function newInstance(array $attributes = [], ?string $model = null)
+    public function newInstance($attributes = [], ?string $model = null)
     {
         $model = $model ?? static::class;
 
-        if (! is_subclass_of($model, Model::class)) {
-            $model = Model::class;
-        }
+        // if (! is_subclass_of($model, Model::class)) {
+        //     $model = Model::class;
+        // }
 
         $model = new $model($attributes);
 
@@ -153,7 +168,7 @@ class Model implements ArrayAccess, JsonSerializable, NeedsEcont
     {
         $attribute = $this->resolveAlias($attribute);
 
-        if (isset($this->casted[$attribute])) {
+        if (array_key_exists($attribute, $this->casted)) {
             return $this->casted[$attribute];
         }
 
@@ -176,15 +191,39 @@ class Model implements ArrayAccess, JsonSerializable, NeedsEcont
         list($type, $params) = explode(':', $type, 2) + [null, []];
         $params = explode(',', $params);
 
-        if ($type == 'array') {
-            $value = (array) $value;
+        switch ($type) {
+            case 'int':
+            case 'integer':
+                if (! is_null($value)) {
+                    $value = intval($value);
+                }
+                break;
+            case 'float':
+            case 'double':
+            case 'real':
+                if (! is_null($value)) {
+                    $value = floatval($value);
+                }
 
-            if (isset($params[0]) && class_exists($params[0])) {
-                $value = array_map(function ($v) use ($params) {
-                    return $this->newInstance($v, $params[0]);
-                }, $value);
-            }
+                break;
+            case 'array':
+                $value = is_null($value) ? [] : (array) $value;
+                break;
+            case 'collection':
+                $colType = ModelCollection::class;
+                $modelType = $params[0] ?? null;
+
+                if (count($params) == 2) {
+                    list($colType, $modelType) = $params;
+                }
+
+                $value = new $colType($value ?? [], $modelType);
+                break;
+            default:
+                throw new EcontException(sprintf("Invalid cast type [$type] for model [%s].", static::class));
         }
+
+        $this->casted[$attribute] = $value;
 
         return $value;
     }
