@@ -52,6 +52,13 @@ class Model implements ArrayAccess, JsonSerializable, NeedsEcont
     protected $aliases = [];
 
     /**
+     * A list of required attributes that when validating if missing from the model, an error would be thrown.
+     *
+     * @var string[]
+     */
+    protected array $required = [];
+
+    /**
      * Create a new Econt Model Instance.
      *
      * @param  array  $attributes
@@ -72,6 +79,37 @@ class Model implements ArrayAccess, JsonSerializable, NeedsEcont
     {
         foreach ($attributes as $name => $value) {
             $this->setAttribute($name, $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Make sure all required parameters are present in the model.
+     *
+     * @return static
+     * @throws \MikeyDevelops\Econt\Exceptions\EcontException
+     */
+    public function validate(): self
+    {
+        if (empty($this->required)) {
+            return $this;
+        }
+
+        $missing = [];
+
+        foreach ($this->required as $prop) {
+            if (! isset($this->attributes[$prop])) {
+                $missing[] = $prop;
+            }
+        }
+
+        if (count($missing)) {
+            throw new EcontException(sprintf(
+                'Missing required attributes for model [%s]. Missing attributes: [%s].',
+                static::class,
+                implode(', ', $missing),
+            ));
         }
 
         return $this;
