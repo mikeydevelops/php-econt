@@ -98,9 +98,10 @@ class Resource implements NeedsEcont
     /**
      * Create a collection for the model.
      *
+     * @template T
      * @param  array  $request
-     * @param  class-string|null  $model  Optional model to overwrite the resource model.
-     * @return \MikeyDevelops\Econt\Models\Collections\ModelCollection<static>
+     * @param  class-string<T>|null  $model  Optional model to overwrite the resource model.
+     * @return \MikeyDevelops\Econt\Models\Collections\ModelCollection<static|T>
      */
     public function newModelCollection(array $models = [], ?string $model = null)
     {
@@ -118,10 +119,11 @@ class Resource implements NeedsEcont
     /**
      * Get a generic Model Collection from response.
      *
+     * @template T
      * @param  \MikeyDevelops\Econt\Http\Response  $response  The response.
-     * @param  class-string  $modelType  The type of the model in the request data.
+     * @param  class-string<T>  $modelType  The type of the model in the request data.
      * @param  string|null  $key  [optional] Key to access the array of models in the response data.
-     * @return \MikeyDevelops\Econt\Models\Collections\ModelCollection
+     * @return \MikeyDevelops\Econt\Models\Collections\ModelCollection<T>
      * @throws \MikeyDevelops\Econt\Exceptions\EcontException
      * @see MikeyDevelops\Econt\Models\Collections\ModelCollection::fromResponse()
      */
