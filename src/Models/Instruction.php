@@ -13,7 +13,7 @@ use MikeyDevelops\Econt\Models\Model;
  * @property  string|null  $description  Content of the instruction for receiving or giving over a shipment.
  * @property-read  \MikeyDevelops\Econt\Models\HostedFile[]  $attachments  Attached files with instructions for receiving or giving over a shipment.
  * @property-read  \MikeyDevelops\Econt\Models\HostedFile  $voiceDescription  Recorded voice message with instruction for receiving or giving over a shipment (mp3).
- * @property-read  \MikeyDevelops\Econt\Models\ReturnInstructionParams  $returnInstructionParams  Instruction parameters for returning a shipment.
+ * @property-read  \MikeyDevelops\Econt\Models\ReturnInstruction  $returnInstructionParams  Instruction parameters for returning a shipment.
  * @property  string  $name  Instruction template name.
  * @property  boolean  $applyToAllParcels  Whether or not the template should be applied for all sender's shipments.
  * @property  string[]  $applyToReceivers  Whether or not the template should be applied for all sender's shipments to given receivers.
@@ -32,6 +32,6 @@ class Instruction extends Model
         'type' => 'enum:'.\MikeyDevelops\Econt\Enums\InstructionType::class,
         'attachments' => 'array:'.\MikeyDevelops\Econt\Models\HostedFile::class,
         'voiceDescription' => \MikeyDevelops\Econt\Models\HostedFile::class,
-        'returnInstructionParams' => \MikeyDevelops\Econt\Models\ReturnInstructionParams::class,
+        'returnInstructionParams' => \MikeyDevelops\Econt\Models\ReturnInstruction::class,
     ];
 }

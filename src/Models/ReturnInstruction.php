@@ -49,7 +49,7 @@ use MikeyDevelops\Econt\Models\Model;
  *
  * @see https://ee.econt.com/services/Shipments/#ReturnInstructionParams
  */
-class ReturnInstructionParams extends Model
+class ReturnInstruction extends Model
 {
 
     /**
