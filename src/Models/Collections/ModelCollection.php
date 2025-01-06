@@ -13,6 +13,9 @@ use MikeyDevelops\Econt\Interfaces\NeedsEcont;
 use MikeyDevelops\Econt\Resources\Resource;
 use MikeyDevelops\Econt\Traits\InteractsWithEcontClient;
 
+/**
+ * @template TModel
+ */
 class ModelCollection implements ArrayAccess, Countable, JsonSerializable, Iterator, NeedsEcont
 {
     use InteractsWithEcontClient;
@@ -20,14 +23,14 @@ class ModelCollection implements ArrayAccess, Countable, JsonSerializable, Itera
     /**
      * The model type in this collection.
      *
-     * @var string|null
+     * @var class-string<TModel>|null
      */
     protected ?string $modelType = null;
 
     /**
      * The models for the collection.
      *
-     * @var array
+     * @var array[]|TModel[]||\MikeyDevelops\Econt\Models\Model[]
      */
     protected array $models = [];
 
@@ -55,8 +58,8 @@ class ModelCollection implements ArrayAccess, Countable, JsonSerializable, Itera
     /**
      * Create a new Model collection instance.
      *
-     * @param  \MikeyDevelops\Econt\Models\Model[]|array[]  $models
-     * @param  class-string  $modelType  Optional the type of the model.
+     * @param  array[]|TModel[]||\MikeyDevelops\Econt\Models\Model[]  $models
+     * @param  class-string<TModel>  $modelType  Optional the type of the model.
      * @return void
      */
     public function __construct(array $models, ?string $modelType = null)
@@ -258,7 +261,7 @@ class ModelCollection implements ArrayAccess, Countable, JsonSerializable, Itera
     /**
      * Get the current model of the collection.
      *
-     * @return \MikeyDevelops\Econt\Models\Model
+     * @return TModel|\MikeyDevelops\Econt\Models\Model|array
      */
     public function current(): mixed
     {
