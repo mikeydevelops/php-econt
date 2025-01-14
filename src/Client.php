@@ -57,6 +57,8 @@ class Client
      */
     public static $availableResources = [
         'profiles' => \MikeyDevelops\Econt\Resources\Profiles::class,
+        'shipments' => \MikeyDevelops\Econt\Resources\Shipments::class,
+        'labels' => \MikeyDevelops\Econt\Resources\Labels::class,
         'nomenclatures' => \MikeyDevelops\Econt\Resources\Nomenclatures::class,
         'locations' => \MikeyDevelops\Econt\Resources\Nomenclatures::class,
         'addresses' => \MikeyDevelops\Econt\Resources\Addresses::class,
